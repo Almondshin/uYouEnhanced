@@ -22,9 +22,9 @@ on:
         required: true
         type: string
       decrypted_youtube_url:
-        description: "Direct URL of the decrypted YouTube IPA"
+        description: "Direct URL of the decrypted YouTube IPA (leave empty to use the youtube-ipa draft release asset)"
         default: ""
-        required: true
+        required: false
         type: string
       bundle_id:
         description: "Modify the bundle ID"
