@@ -150,14 +150,14 @@ jobs:
 
       - name: Hash YT ipa url
         run: |
-          URL_YT="$(jq -r '.inputs.decrypted_youtube_url' $GITHUB_EVENT_PATH)"
+          URL_YT="$(jq -r '.inputs.decrypted_youtube_url // empty' $GITHUB_EVENT_PATH)"
           echo ::add-mask::$URL_YT
           echo URL_YT=$URL_YT >> $GITHUB_ENV
 
       - name: Prepare YouTube iPA
         id: prepare_youtube
         run: |
-          if [ -n "$YOUTUBE_URL" ]; then
+          if [ -n "$YOUTUBE_URL" ] && [ "$YOUTUBE_URL" != "null" ]; then
             wget "$YOUTUBE_URL" --quiet -O main/YouTube.ipa
           else
             # No URL given: use the YouTube.ipa asset kept on this repo's private
