@@ -317,6 +317,61 @@ jobs:
           fi
           echo "RENAMED_IPA=$NEW" >> "$GITHUB_ENV"
 
+      # Prebuilt vendor binaries (CydiaSubstrate, libundirect, YTUHD) still ship 32-bit
+      # and arm64e slices, which break installation on current devices. Thin every
+      # universal Mach-O that has an arm64 slice down to arm64 only.
+      - name: Thin binaries to arm64
+        id: thin_binaries
+        shell: bash
+        run: |
+          cd ${{ github.workspace }}/main/packages
+          IPA="${RENAMED_IPA:-${{ steps.strip_ipa.outputs.final_ipa }}}"
+          [ -f "$IPA" ] || IPA="$(ls -t *.ipa | head -n1)"
+          echo -e "==> \033[1mThinning $IPA\033[0m"
+
+          rm -rf _thin && mkdir _thin
+          unzip -q "$IPA" -d _thin
+
+          # Binaries that are already arm64-only are left untouched, including the
+          # single-slice fat wrappers (e.g. uYou.dylib) that ship that way normally.
+          count=0
+          while IFS= read -r f; do
+            file -b "$f" | grep -q 'Mach-O' || continue
+            archs="$(lipo -archs "$f" 2>/dev/null || true)"
+            if [ -z "$archs" ] || [ "$archs" = "arm64" ]; then continue; fi
+            case " $archs " in
+              *" arm64 "*) ;;
+              *) echo "::error::${f#_thin/Payload/} has no arm64 slice ($archs)"; exit 1 ;;
+            esac
+            mode="$(stat -f%Lp "$f")"
+            lipo -thin arm64 "$f" -output "$f.thin"
+            mv -f "$f.thin" "$f"
+            chmod "$mode" "$f"
+            printf '    %-56s %-26s -> arm64\n' "${f#_thin/Payload/}" "$archs"
+            count=$((count + 1))
+          done < <(find _thin/Payload -type f)
+          echo "==> Thinned $count binaries"
+
+          left=""
+          while IFS= read -r f; do
+            file -b "$f" | grep -q 'Mach-O' || continue
+            archs="$(lipo -archs "$f" 2>/dev/null || true)"
+            if [ -n "$archs" ] && [ "$archs" != "arm64" ]; then
+              left="${left}${f#_thin/Payload/} ($archs)"$'\n'
+            fi
+          done < <(find _thin/Payload -type f)
+          if [ -n "$left" ]; then
+            echo "::error::Non-arm64 slices remain after thinning:"
+            printf '%s' "$left"
+            exit 1
+          fi
+
+          rm -f "$IPA"
+          (cd _thin && zip -qry "../$IPA" Payload)
+          rm -rf _thin
+
+          echo -e "==> \033[1mSHASUM256: $(shasum -a 256 "$IPA" | cut -f1 -d' ')\033[0m"
+
       - name: Upload Artifact
         if: ${{ inputs.upload_artifact }}
         uses: actions/upload-artifact@v7
