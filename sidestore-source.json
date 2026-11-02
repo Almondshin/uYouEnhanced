@@ -1,0 +1,36 @@
+{
+  "name": "uYouEnhanced (Almondshin)",
+  "identifier": "com.almondshin.uyouenhanced",
+  "subtitle": "arm64-thinned uYouEnhanced builds",
+  "description": "Builds of uYouEnhanced from github.com/Almondshin/uYouEnhanced. Each release is thinned to arm64 so it installs on current iPhones and iPads.",
+  "iconURL": "https://raw.githubusercontent.com/Almondshin/uYouEnhanced/main/sidestore-icon.png",
+  "website": "https://github.com/Almondshin/uYouEnhanced",
+  "apps": [
+    {
+      "name": "YouTube (uYouEnhanced)",
+      "bundleIdentifier": "com.google.ios.youtube",
+      "developerName": "arichornlover / Almondshin",
+      "subtitle": "YouTube with uYou, uYouPlus and extra tweaks",
+      "localizedDescription": "YouTube with uYouEnhanced: background playback, downloads, ad-free, picture in picture and more.",
+      "iconURL": "https://raw.githubusercontent.com/Almondshin/uYouEnhanced/main/sidestore-icon.png",
+      "tintColor": "#FF0000",
+      "category": "entertainment",
+      "versions": [
+        {
+          "version": "20.44.2",
+          "buildVersion": "20.44.2",
+          "date": "2026-08-05",
+          "localizedDescription": "v20.44.2-3.0.4-(2)",
+          "downloadURL": "https://github.com/Almondshin/uYouEnhanced/releases/download/v20.44.2-3.0.4-%282%29/uYouEnhanced_20.44.2-3.0.4.ipa",
+          "size": 142781220,
+          "sha256": "98e1c78dc5102b17f70870421d3439c3b154f3a6399342c5978316a8c58daa31",
+          "minOSVersion": "16.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ]
+}
